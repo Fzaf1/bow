@@ -1,0 +1,1071 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LifeOS Pro - AI-Powered Life Operating System</title>
+  <!-- External libs -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --bg-gradient-end: #764ba2;
+    }
+    html, body { height: 100%; }
+    body {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, var(--bg-gradient-end) 100%);
+    }
+    .glassmorphism {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    }
+    .neo-card {
+      background: linear-gradient(145deg, #ffffff, #f0f0f0);
+      box-shadow: 20px 20px 60px #d9d9d9, -20px -20px 60px #ffffff;
+      border-radius: 20px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .neo-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 25px 25px 70px #d9d9d9, -25px -25px 70px #ffffff;
+    }
+    .gradient-text {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .ai-glow { animation: aiPulse 2s ease-in-out infinite alternate; }
+    @keyframes aiPulse { 0% { box-shadow: 0 0 20px rgba(102, 126, 234, 0.5);} 100% { box-shadow: 0 0 40px rgba(118, 75, 162, 0.8);} }
+    .sidebar { width: 320px; min-width: 320px; background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%); }
+    .nav-item { position: relative; overflow: hidden; }
+    .nav-item::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent); transition: left 0.5s; }
+    .nav-item:hover::before { left: 100%; }
+    .kanban-column { min-height: 500px; background: linear-gradient(145deg, #f8fafc, #e2e8f0); border-radius: 16px; padding: 20px; }
+    .task-card { background: white; border-radius: 12px; padding: 16px; margin-bottom: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); cursor: grab; transition: all 0.2s; border-left: 4px solid #e5e7eb; }
+    .task-card:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+    .task-card.priority-critical { border-left-color: #dc2626; }
+    .task-card.priority-high { border-left-color: #ea580c; }
+    .task-card.priority-medium { border-left-color: #ca8a04; }
+    .task-card.priority-low { border-left-color: #16a34a; }
+    .ai-suggestion { background: linear-gradient(135deg, #667eea, #764ba2); color: white; border-radius: 12px; padding: 16px; margin: 12px 0; position: relative; overflow: hidden; }
+    .ai-suggestion::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent); animation: shimmer 3s infinite; }
+    @keyframes shimmer { 0% { transform: translateX(-100%) translateY(-100%) rotate(45deg);} 100% { transform: translateX(100%) translateY(100%) rotate(45deg);} }
+    .metric-card { background: white; border-radius: 16px; padding: 24px; text-align: center; position: relative; overflow: hidden; }
+    .metric-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, #667eea, #764ba2); }
+    .progress-ring { transform: rotate(-90deg); }
+    .progress-ring-circle { stroke-dasharray: 251.2; stroke-dashoffset: 251.2; transition: stroke-dashoffset 0.5s ease-in-out; }
+    .notification-toast { position: fixed; top: 20px; right: 20px; z-index: 1000; min-width: 300px; background: white; border-radius: 12px; padding: 16px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); border-left: 4px solid #10b981; animation: slideInRight 0.3s ease-out; }
+    @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    .floating-action { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; font-size: 24px; cursor: pointer; box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3); transition: all 0.3s; z-index: 100; }
+    .floating-action:hover { transform: scale(1.1); box-shadow: 0 15px 30px rgba(102, 126, 234, 0.4); }
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(5px); z-index: 1000; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: all 0.3s; }
+    .modal-overlay.active { opacity: 1; visibility: visible; }
+    .modal-content { background: white; border-radius: 20px; padding: 30px; max-width: 600px; width: 90%; max-height: 80%; overflow-y: auto; transform: scale(0.8); transition: transform 0.3s; }
+    .modal-overlay.active .modal-content { transform: scale(1); }
+    .tab-content { display: none; animation: fadeIn 0.3s ease-in-out; }
+    .tab-content.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px);} to { opacity: 1; transform: translateY(0);} }
+    .ai-chat { background: linear-gradient(145deg, #f8fafc, #e2e8f0); border-radius: 16px; padding: 20px; height: 400px; display: flex; flex-direction: column; }
+    .chat-messages { flex: 1; overflow-y: auto; margin-bottom: 16px; padding-right: 8px; }
+    .chat-message { margin-bottom: 12px; padding: 12px 16px; border-radius: 12px; max-width: 80%; }
+    .chat-message.user { background: linear-gradient(135deg, #667eea, #764ba2); color: white; margin-left: auto; }
+    .chat-message.ai { background: white; border: 1px solid #e5e7eb; }
+    .typing-indicator { display: flex; align-items: center; gap: 4px; padding: 12px 16px; background: white; border-radius: 12px; max-width: 80px; }
+    .typing-dot { width: 8px; height: 8px; border-radius: 50%; background: #9ca3af; animation: typing 1.4s infinite ease-in-out; }
+    .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+    .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+    @keyframes typing { 0%, 80%, 100% { transform: scale(0); opacity: 0.5; } 40% { transform: scale(1); opacity: 1; } }
+    .gantt-timeline { background: white; border-radius: 12px; padding: 20px; overflow-x: auto; }
+    .gantt-row { display: flex; align-items: center; padding: 8px 0; border-bottom: 1px solid #f3f4f6; }
+    .gantt-task { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; white-space: nowrap; }
+    .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background: #e5e7eb; border-radius: 8px; overflow: hidden; }
+    .calendar-day { background: white; padding: 12px 8px; min-height: 80px; position: relative; cursor: pointer; transition: background-color 0.2s; }
+    .calendar-day:hover { background: #f9fafb; }
+    .calendar-day.today { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
+    .calendar-event { background: rgba(102, 126, 234, 0.1); border-left: 3px solid #667eea; padding: 2px 6px; margin: 2px 0; border-radius: 3px; font-size: 11px; cursor: pointer; }
+    .budget-category { display: flex; align-items: center; justify-content: space-between; padding: 16px; background: white; border-radius: 12px; margin-bottom: 12px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
+    .budget-progress { width: 100%; height: 8px; background: #f3f4f6; border-radius: 4px; overflow: hidden; margin-top: 8px; }
+    .budget-fill { height: 100%; background: linear-gradient(90deg, #10b981, #059669); transition: width 0.3s ease; }
+    .budget-fill.over-budget { background: linear-gradient(90deg, #dc2626, #b91c1c); }
+    @media (max-width: 1024px) { .sidebar { width: 100%; min-width: 100%; } .desktop-layout { flex-direction: column; } }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+ </head>
+ <body class="h-full">
+  <div id="app" class="h-full flex">
+   <!-- Sidebar -->
+   <aside class="sidebar text-white flex flex-col">
+    <div class="p-6 border-b border-white border-opacity-10">
+     <div class="flex items-center gap-3 mb-3">
+      <div class="w-10 h-10 rounded-lg bg-gradient-to-r from-blue-400 to-purple-500 flex items-center justify-center"><i class="fas fa-brain text-white"></i></div>
+      <div>
+       <h1 id="app-title" class="text-xl font-bold">LifeOS Pro</h1>
+       <p id="welcome-message" class="text-xs opacity-75">Your AI-Powered Life Operating System</p>
+      </div>
+     </div>
+     <div class="flex items-center gap-2 text-sm">
+      <div class="w-2 h-2 bg-green-400 rounded-full ai-glow"></div><span id="ai-assistant-name">ARIA</span> <span class="opacity-75">• Online</span>
+     </div>
+    </div>
+    <nav class="flex-1 p-4">
+     <div class="space-y-2">
+      <button onclick="switchTab('command')" class="nav-item w-full text-left px-4 py-3 rounded-lg transition-all duration-200 flex items-center gap-3" data-tab="command"><i class="fas fa-tachometer-alt text-lg"></i><span class="font-medium" id="nav-command">Command Center</span><span class="ml-auto text-xs bg-blue-500 px-2 py-1 rounded-full">AI</span></button>
+      <button onclick="switchTab('projects')" class="nav-item w-full text-left px-4 py-3 rounded-lg transition-all duration-200 flex items-center gap-3" data-tab="projects"><i class="fas fa-project-diagram text-lg"></i><span class="font-medium" id="nav-projects">Project Management</span></button>
+      <button onclick="switchTab('finance')" class="nav-item w-full text-left px-4 py-3 rounded-lg transition-all duration-200 flex items-center gap-3" data-tab="finance"><i class="fas fa-chart-line text-lg"></i><span class="font-medium" id="nav-finance">Financial Intelligence</span></button>
+      <button onclick="switchTab('analytics')" class="nav-item w-full text-left px-4 py-3 rounded-lg transition-all duration-200 flex items-center gap-3" data-tab="analytics"><i class="fas fa-brain text-lg"></i><span class="font-medium" id="nav-analytics">Performance Analytics</span></button>
+      <button onclick="switchTab('calendar')" class="nav-item w-full text-left px-4 py-3 rounded-lg transition-all duration-200 flex items-center gap-3" data-tab="calendar"><i class="fas fa-calendar-alt text-lg"></i><span class="font-medium">Smart Calendar</span></button>
+      <button onclick="switchTab('automation')" class="nav-item w-full text-left px-4 py-3 rounded-lg transition-all duration-200 flex items-center gap-3" data-tab="automation"><i class="fas fa-robot text-lg"></i><span class="font-medium">Automation Hub</span></button>
+     </div>
+     <div class="mt-8">
+      <h3 class="text-sm font-semibold opacity-75 mb-3">QUICK ACTIONS</h3>
+      <div class="space-y-2">
+       <button onclick="openQuickAdd('task')" class="w-full text-left px-3 py-2 text-sm rounded-lg hover:bg-white hover:bg-opacity-10 flex items-center gap-2"><i class="fas fa-plus-circle"></i><span>Add Task</span></button>
+       <button onclick="openQuickAdd('meeting')" class="w-full text-left px-3 py-2 text-sm rounded-lg hover:bg-white hover:bg-opacity-10 flex items-center gap-2"><i class="fas fa-video"></i><span>Schedule Meeting</span></button>
+       <button onclick="openQuickAdd('expense')" class="w-full text-left px-3 py-2 text-sm rounded-lg hover:bg-white hover:bg-opacity-10 flex items-center gap-2"><i class="fas fa-receipt"></i><span>Log Expense</span></button>
+      </div>
+     </div>
+    </nav>
+    <div class="p-4 border-t border-white border-opacity-10">
+     <div class="glassmorphism rounded-lg p-4">
+      <h3 class="font-semibold mb-3 text-sm flex items-center gap-2"><i class="fas fa-lightbulb text-yellow-400"></i> AI Insights</h3>
+      <div id="ai-insights" class="space-y-2 text-sm">
+       <div class="opacity-90">🎯 You're 23% more productive on Tuesdays</div>
+       <div class="opacity-90">💰 Budget variance: -$127 this month</div>
+       <div class="opacity-90">⚡ 3 tasks can be automated</div>
+      </div>
+     </div>
+    </div>
+   </aside>
+   <!-- Main Content -->
+   <main class="flex-1 flex flex-col overflow-hidden bg-gray-50">
+    <header class="bg-white shadow-sm border-b px-6 py-4 flex items-center justify-between">
+     <div class="flex items-center gap-4">
+      <h2 id="page-title" class="text-2xl font-bold gradient-text">Command Center</h2>
+      <div class="flex items-center gap-2 text-sm text-gray-500"><i class="fas fa-calendar"></i><span id="current-date"></span></div>
+     </div>
+     <div class="flex items-center gap-4">
+      <div class="relative"><input type="text" id="global-search" placeholder="Search everything..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-64"><i class="fas fa-search absolute left-3 top-3 text-gray-400"></i></div>
+      <button onclick="toggleNotifications()" class="relative p-2 rounded-lg hover:bg-gray-100"><i class="fas fa-bell text-xl"></i><span id="notification-count" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">3</span></button>
+      <button onclick="toggleAIChat()" class="p-2 rounded-lg hover:bg-gray-100 ai-glow"><i class="fas fa-robot text-xl text-purple-600"></i></button>
+      <button onclick="openSettings()" class="p-2 rounded-lg hover:bg-gray-100"><i class="fas fa-cog text-xl"></i></button>
+     </div>
+    </header>
+    <div class="flex-1 overflow-y-auto p-6">
+     <!-- Command Center Tab -->
+     <div id="command-tab" class="tab-content active">
+      <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
+       <div class="metric-card">
+        <div class="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-lg mx-auto mb-4"><i class="fas fa-tasks text-2xl text-blue-600"></i></div>
+        <div class="text-3xl font-bold text-gray-800" id="productivity-score">87%</div>
+        <div class="text-sm text-gray-500">Productivity Score</div>
+        <div class="text-xs text-green-600 mt-1">↗ +12% vs last week</div>
+       </div>
+       <div class="metric-card">
+        <div class="flex items-center justify-center w-12 h-12 bg-green-100 rounded-lg mx-auto mb-4"><i class="fas fa-dollar-sign text-2xl text-green-600"></i></div>
+        <div class="text-3xl font-bold text-gray-800" id="financial-health">92</div>
+        <div class="text-sm text-gray-500">Financial Health</div>
+        <div class="text-xs text-green-600 mt-1">↗ Excellent</div>
+       </div>
+       <div class="metric-card">
+        <div class="flex items-center justify-center w-12 h-12 bg-purple-100 rounded-lg mx-auto mb-4"><i class="fas fa-target text-2xl text-purple-600"></i></div>
+        <div class="text-3xl font-bold text-gray-800" id="goal-completion">76%</div>
+        <div class="text-sm text-gray-500">Goal Completion</div>
+        <div class="text-xs text-blue-600 mt-1">3 of 4 goals on track</div>
+       </div>
+       <div class="metric-card">
+        <div class="flex items-center justify-center w-12 h-12 bg-orange-100 rounded-lg mx-auto mb-4"><i class="fas fa-brain text-2xl text-orange-600"></i></div>
+        <div class="text-3xl font-bold text-gray-800" id="ai-optimization">94%</div>
+        <div class="text-sm text-gray-500">AI Optimization</div>
+        <div class="text-xs text-green-600 mt-1">↗ Highly optimized</div>
+       </div>
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+       <div class="neo-card p-6">
+        <h3 class="text-xl font-bold mb-4 flex items-center gap-2"><i class="fas fa-magic text-purple-600"></i> AI Recommendations</h3>
+        <div id="ai-recommendations" class="space-y-3">
+         <div class="ai-suggestion"><div class="flex items-start gap-3"><i class="fas fa-lightbulb text-yellow-300 mt-1"></i><div><div class="font-semibold">Optimize Your Schedule</div><div class="text-sm opacity-90">Move "Team Meeting" to 2 PM for 15% better focus</div></div></div></div>
+         <div class="ai-suggestion"><div class="flex items-start gap-3"><i class="fas fa-chart-line text-green-300 mt-1"></i><div><div class="font-semibold">Budget Alert</div><div class="text-sm opacity-90">You're $200 under budget in "Entertainment" - consider reallocating</div></div></div></div>
+         <div class="ai-suggestion"><div class="flex items-start gap-3"><i class="fas fa-rocket text-blue-300 mt-1"></i><div><div class="font-semibold">Productivity Boost</div><div class="text-sm opacity-90">Block 9-11 AM for deep work - your peak performance window</div></div></div></div>
+        </div>
+       </div>
+       <div class="neo-card p-6">
+        <h3 class="text-xl font-bold mb-4 flex items-center gap-2"><i class="fas fa-chart-area text-blue-600"></i> Performance Trends</h3>
+        <div class="relative" style="height: 240px;"><canvas id="performanceChart"></canvas></div>
+       </div>
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+       <div class="lg:col-span-2 neo-card p-6">
+        <h3 class="text-xl font-bold mb-4 flex items-center gap-2"><i class="fas fa-crosshairs text-red-600"></i> Today's Focus</h3>
+        <div id="today-focus" class="space-y-4"></div>
+       </div>
+       <div class="neo-card p-6">
+        <h3 class="text-xl font-bold mb-4 flex items-center gap-2"><i class="fas fa-clock text-green-600"></i> Time Tracking</h3>
+        <div class="space-y-4">
+         <div class="flex justify-between items-center"><span class="text-sm">Deep Work</span><span class="font-bold">2h 34m</span></div>
+         <div class="w-full bg-gray-200 rounded-full h-2"><div class="bg-blue-600 h-2 rounded-full" style="width: 65%"></div></div>
+         <div class="flex justify-between items-center"><span class="text-sm">Meetings</span><span class="font-bold">1h 15m</span></div>
+         <div class="w-full bg-gray-200 rounded-full h-2"><div class="bg-green-600 h-2 rounded-full" style="width: 30%"></div></div>
+         <div class="flex justify-between items-center"><span class="text-sm">Admin Tasks</span><span class="font-bold">45m</span></div>
+         <div class="w-full bg-gray-200 rounded-full h-2"><div class="bg-yellow-600 h-2 rounded-full" style="width: 20%"></div></div>
+        </div>
+       </div>
+      </div>
+     </div>
+     <!-- Projects Tab -->
+     <div id="projects-tab" class="tab-content">
+      <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
+       <div class="metric-card"><div class="text-2xl font-bold text-gray-800" id="active-projects">12</div><div class="text-sm text-gray-500">Active Projects</div></div>
+       <div class="metric-card"><div class="text-2xl font-bold text-green-600" id="completed-projects">8</div><div class="text-sm text-gray-500">Completed This Month</div></div>
+       <div class="metric-card"><div class="text-2xl font-bold text-orange-600" id="overdue-tasks">3</div><div class="text-sm text-gray-500">Overdue Tasks</div></div>
+       <div class="metric-card"><div class="text-2xl font-bold text-blue-600" id="team-efficiency">94%</div><div class="text-sm text-gray-500">Team Efficiency</div></div>
+      </div>
+      <div class="neo-card p-6 mb-8">
+       <div class="flex items-center justify-between mb-6">
+        <h3 id="projects-title" class="text-xl font-bold flex items-center gap-2"><i class="fas fa-columns text-blue-600"></i> Project Management</h3>
+        <div class="flex gap-2">
+         <select id="project-filter" class="px-3 py-2 border border-gray-300 rounded-lg">
+          <option value="all">All Projects</option>
+          <option value="personal">Personal</option>
+          <option value="work">Work</option>
+          <option value="urgent">Urgent</option>
+         </select>
+         <button onclick="openProjectModal()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"><i class="fas fa-plus"></i> New Project</button>
+        </div>
+       </div>
+       <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div class="kanban-column">
+         <h4 class="font-semibold text-gray-700 mb-4 flex items-center gap-2"><div class="w-3 h-3 bg-gray-400 rounded-full"></div> Backlog <span id="backlog-count" class="ml-auto bg-gray-200 text-gray-700 px-2 py-1 rounded-full text-xs">0</span></h4>
+         <div id="backlog-column" class="space-y-3 min-h-96"></div>
+        </div>
+        <div class="kanban-column">
+         <h4 class="font-semibold text-gray-700 mb-4 flex items-center gap-2"><div class="w-3 h-3 bg-blue-400 rounded-full"></div> In Progress <span id="progress-count" class="ml-auto bg-blue-200 text-blue-700 px-2 py-1 rounded-full text-xs">0</span></h4>
+         <div id="progress-column" class="space-y-3 min-h-96"></div>
+        </div>
+        <div class="kanban-column">
+         <h4 class="font-semibold text-gray-700 mb-4 flex items-center gap-2"><div class="w-3 h-3 bg-yellow-400 rounded-full"></div> Review <span id="review-count" class="ml-auto bg-yellow-200 text-yellow-700 px-2 py-1 rounded-full text-xs">0</span></h4>
+         <div id="review-column" class="space-y-3 min-h-96"></div>
+        </div>
+        <div class="kanban-column">
+         <h4 class="font-semibold text-gray-700 mb-4 flex items-center gap-2"><div class="w-3 h-3 bg-green-400 rounded-full"></div> Completed <span id="completed-count" class="ml-auto bg-green-200 text-green-700 px-2 py-1 rounded-full text-xs">0</span></h4>
+         <div id="completed-column" class="space-y-3 min-h-96"></div>
+        </div>
+       </div>
+      </div>
+      <div class="neo-card p-6">
+       <h3 class="text-xl font-bold mb-4 flex items-center gap-2"><i class="fas fa-chart-gantt text-purple-600"></i> Project Timeline</h3>
+       <div id="gantt-chart" class="gantt-timeline"></div>
+      </div>
+     </div>
+     <!-- Finance Tab -->
+     <div id="finance-tab" class="tab-content">
+      <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
+       <div class="metric-card"><div class="text-2xl font-bold text-green-600" id="total-income">$12,450</div><div class="text-sm text-gray-500">Total Income</div><div class="text-xs text-green-600 mt-1">↗ +8.2% vs last month</div></div>
+       <div class="metric-card"><div class="text-2xl font-bold text-red-600" id="total-expenses">$8,230</div><div class="text-sm text-gray-500">Total Expenses</div><div class="text-xs text-red-600 mt-1">↗ +3.1% vs last month</div></div>
+       <div class="metric-card"><div class="text-2xl font-bold text-blue-600" id="net-worth">$4,220</div><div class="text-sm text-gray-500">Net Savings</div><div class="text-xs text-green-600 mt-1">↗ +15.3% vs last month</div></div>
+       <div class="metric-card"><div class="text-2xl font-bold text-purple-600" id="investment-return">+12.4%</div><div class="text-sm text-gray-500">Investment Return</div><div class="text-xs text-green-600 mt-1">↗ Outperforming market</div></div>
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+       <div class="neo-card p-6">
+        <h3 id="finance-title" class="text-xl font-bold mb-4 flex items-center gap-2"><i class="fas fa-chart-pie text-green-600"></i> Budget Analysis</h3>
+        <div id="budget-categories" class="space-y-4"></div>
+       </div>
+       <div class="neo-card p-6">
+        <h3 class="text-xl font-bold mb-4 flex items-center gap-2"><i class="fas fa-crystal-ball text-purple-600"></i> AI Financial Forecast</h3>
+        <div class="relative" style="height: 240px;"><canvas id="forecastChart"></canvas></div>
+        <div class="mt-4 p-4 bg-blue-50 rounded-lg"><div class="text-sm text-blue-800"><strong>AI Prediction:</strong> Based on your spending patterns, you'll save $1,200 more than planned this month.</div></div>
+       </div>
+      </div>
+      <div class="neo-card p-6">
+       <div class="flex items-center justify-between mb-6">
+        <h3 class="text-xl font-bold flex items-center gap-2"><i class="fas fa-history text-blue-600"></i> Smart Transaction History</h3>
+        <div class="flex gap-2">
+         <select id="transaction-filter" class="px-3 py-2 border border-gray-300 rounded-lg">
+          <option value="all">All Transactions</option>
+          <option value="income">Income</option>
+          <option value="expense">Expenses</option>
+          <option value="investment">Investments</option>
+         </select>
+         <button onclick="openTransactionModal()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2"><i class="fas fa-plus"></i> Add Transaction</button>
+        </div>
+       </div>
+       <div id="transaction-list" class="space-y-3"></div>
+      </div>
+     </div>
+     <!-- Analytics Tab -->
+     <div id="analytics-tab" class="tab-content">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+       <div class="neo-card p-6">
+        <h3 id="analytics-title" class="text-lg font-bold mb-4 flex items-center gap-2"><i class="fas fa-brain text-purple-600"></i> Performance Analytics</h3>
+        <div class="text-center">
+         <svg class="progress-ring w-32 h-32 mx-auto" width="120" height="120"><circle class="progress-ring-circle stroke-current text-gray-300" stroke-width="8" fill="transparent" r="40" cx="60" cy="60" /><circle class="progress-ring-circle stroke-current text-purple-600" stroke-width="8" fill="transparent" r="40" cx="60" cy="60" style="stroke-dashoffset: 62.8;" /></svg>
+         <div class="text-2xl font-bold text-purple-600 mt-2">87%</div>
+         <div class="text-sm text-gray-500">Overall Performance</div>
+        </div>
+       </div>
+       <div class="neo-card p-6">
+        <h3 class="text-lg font-bold mb-4 flex items-center gap-2"><i class="fas fa-target text-blue-600"></i> Goal Tracking</h3>
+        <div class="space-y-4">
+         <div><div class="flex justify-between text-sm mb-1"><span>Fitness Goals</span><span>8/10</span></div><div class="w-full bg-gray-200 rounded-full h-2"><div class="bg-green-600 h-2 rounded-full" style="width: 80%"></div></div></div>
+         <div><div class="flex justify-between text-sm mb-1"><span>Career Objectives</span><span>6/8</span></div><div class="w-full bg-gray-200 rounded-full h-2"><div class="bg-blue-600 h-2 rounded-full" style="width: 75%"></div></div></div>
+         <div><div class="flex justify-between text-sm mb-1"><span>Financial Targets</span><span>9/10</span></div><div class="w-full bg-gray-200 rounded-full h-2"><div class="bg-purple-600 h-2 rounded-full" style="width: 90%"></div></div></div>
+        </div>
+       </div>
+       <div class="neo-card p-6">
+        <h3 class="text-lg font-bold mb-4 flex items-center gap-2"><i class="fas fa-chart-line text-green-600"></i> Trend Analysis</h3>
+        <div class="space-y-3">
+         <div class="flex items-center justify-between"><span class="text-sm">Productivity</span><span class="text-green-600 text-sm font-semibold">↗ +15%</span></div>
+         <div class="flex items-center justify-between"><span class="text-sm">Focus Time</span><span class="text-blue-600 text-sm font-semibold">↗ +23%</span></div>
+         <div class="flex items-center justify-between"><span class="text-sm">Task Completion</span><span class="text-purple-600 text-sm font-semibold">↗ +8%</span></div>
+         <div class="flex items-center justify-between"><span class="text-sm">Stress Level</span><span class="text-red-600 text-sm font-semibold">↓ -12%</span></div>
+        </div>
+       </div>
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+       <div class="neo-card p-6">
+        <h3 class="text-xl font-bold mb-4 flex items-center gap-2"><i class="fas fa-clock text-orange-600"></i> Time Distribution</h3>
+        <div class="relative" style="height: 300px;"><canvas id="timeChart"></canvas></div>
+       </div>
+       <div class="neo-card p-6">
+        <h3 class="text-xl font-bold mb-4 flex items-center gap-2"><i class="fas fa-heartbeat text-red-600"></i> Wellness Metrics</h3>
+        <div class="relative" style="height: 300px;"><canvas id="wellnessChart"></canvas></div>
+       </div>
+      </div>
+     </div>
+     <!-- Calendar Tab -->
+     <div id="calendar-tab" class="tab-content">
+      <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+       <div class="lg:col-span-3">
+        <div class="neo-card p-6">
+         <div class="flex items-center justify-between mb-6">
+          <h3 class="text-xl font-bold flex items-center gap-2"><i class="fas fa-calendar-alt text-blue-600"></i> Smart Calendar</h3>
+          <div class="flex gap-2"><button onclick="changeCalendarView('month')" class="px-3 py-1 bg-blue-600 text-white rounded-lg text-sm">Month</button><button onclick="changeCalendarView('week')" class="px-3 py-1 bg-gray-200 text-gray-700 rounded-lg text-sm">Week</button><button onclick="changeCalendarView('day')" class="px-3 py-1 bg-gray-200 text-gray-700 rounded-lg text-sm">Day</button></div>
+         </div>
+         <div id="calendar-container"><div class="calendar-grid" id="calendar-grid"></div></div>
+        </div>
+       </div>
+       <div class="space-y-6">
+        <div class="neo-card p-6">
+         <h3 class="text-lg font-bold mb-4 flex items-center gap-2"><i class="fas fa-plus text-green-600"></i> Quick Add Event</h3>
+         <form id="quick-event-form" class="space-y-3">
+          <input type="text" id="event-title" placeholder="Event title..." class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          <input type="datetime-local" id="event-datetime" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          <button type="submit" class="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Add Event</button>
+         </form>
+        </div>
+        <div class="neo-card p-6">
+         <h3 class="text-lg font-bold mb-4 flex items-center gap-2"><i class="fas fa-list text-purple-600"></i> Upcoming Events</h3>
+         <div id="upcoming-events" class="space-y-3"></div>
+        </div>
+       </div>
+      </div>
+     </div>
+     <!-- Automation Tab -->
+     <div id="automation-tab" class="tab-content">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+       <div class="neo-card p-6">
+        <h3 class="text-xl font-bold mb-4 flex items-center gap-2"><i class="fas fa-robot text-blue-600"></i> Active Automations</h3>
+        <div id="active-automations" class="space-y-4"></div>
+       </div>
+       <div class="neo-card p-6">
+        <h3 class="text-xl font-bold mb-4 flex items-center gap-2"><i class="fas fa-magic text-purple-600"></i> Automation Suggestions</h3>
+        <div id="automation-suggestions" class="space-y-4"></div>
+       </div>
+      </div>
+      <div class="neo-card p-6">
+       <h3 class="text-xl font-bold mb-4 flex items-center gap-2"><i class="fas fa-cogs text-green-600"></i> Create New Automation</h3>
+       <form id="automation-form" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div><label class="block text-sm font-medium mb-2">Trigger</label><select id="automation-trigger" class="w-full px-3 py-2 border border-gray-300 rounded-lg"><option value="time">Time-based</option><option value="task">Task completion</option><option value="budget">Budget threshold</option><option value="calendar">Calendar event</option></select></div>
+        <div><label class="block text-sm font-medium mb-2">Condition</label><input type="text" id="automation-condition" placeholder="e.g., Every Monday at 9 AM" class="w-full px-3 py-2 border border-gray-300 rounded-lg"></div>
+        <div><label class="block text-sm font-medium mb-2">Action</label><select id="automation-action" class="w-full px-3 py-2 border border-gray-300 rounded-lg"><option value="create-task">Create task</option><option value="send-reminder">Send reminder</option><option value="update-budget">Update budget</option><option value="generate-report">Generate report</option></select></div>
+        <div class="md:col-span-3"><button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Create Automation</button></div>
+       </form>
+      </div>
+     </div>
+    </div>
+   </main>
+  </div>
+  <!-- AI Chat Panel -->
+  <div id="ai-chat-panel" class="fixed right-6 bottom-6 w-80 h-96 bg-white rounded-xl shadow-2xl border hidden">
+   <div class="flex items-center justify-between p-4 border-b">
+    <div class="flex items-center gap-2">
+     <div class="w-8 h-8 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center"><i class="fas fa-robot text-white text-sm"></i></div>
+     <div>
+      <div class="font-semibold">ARIA Assistant</div>
+      <div class="text-xs text-green-600">Online</div>
+     </div>
+    </div>
+    <button onclick="toggleAIChat()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+   </div>
+   <div class="ai-chat">
+    <div class="chat-messages" id="chat-messages">
+     <div class="chat-message ai">
+      <div class="flex items-start gap-2"><i class="fas fa-robot text-purple-600 mt-1"></i>
+       <div>
+        <div class="font-semibold text-sm">ARIA</div>
+        <div class="text-sm">Hello! I'm your AI assistant. How can I help optimize your life today?</div>
+       </div>
+      </div>
+     </div>
+    </div>
+    <form id="chat-form" class="flex gap-2"><input type="text" id="chat-input" placeholder="Ask me anything..." class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"><button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"><i class="fas fa-paper-plane"></i></button></form>
+   </div>
+  </div>
+  <!-- Floating Action Button -->
+  <button class="floating-action" onclick="openQuickAdd()"><i class="fas fa-plus"></i></button>
+  <!-- Modal -->
+  <div id="modal-overlay" class="modal-overlay"><div class="modal-content"><div id="modal-body"></div></div></div>
+
+  <script>
+    // Poly-safe helpers
+    const $ = (sel) => document.querySelector(sel);
+    const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+
+    // State
+    let allData = [];
+    let currentRecordCount = 0;
+    let performanceChart = null;
+    let forecastChart = null;
+    let timeChart = null;
+    let wellnessChart = null;
+    let currentCalendarView = 'month';
+    let currentDate = new Date();
+
+    // Config
+    const defaultConfig = {
+      background_color: "#667eea",
+      surface_color: "#ffffff",
+      text_color: "#1f2937",
+      primary_action_color: "#2563eb",
+      secondary_action_color: "#3b82f6",
+      app_title: "LifeOS Pro",
+      welcome_message: "Your AI-Powered Life Operating System",
+      workspace_title: "Command Center",
+      projects_title: "Project Management",
+      finance_title: "Financial Intelligence",
+      analytics_title: "Performance Analytics",
+      ai_assistant_name: "ARIA"
+    };
+    const config = { ...defaultConfig };
+
+    // AI canned responses
+    const aiResponses = [
+      "Based on your patterns, I recommend scheduling deep work between 9-11 AM for optimal productivity.",
+      "I've analyzed your spending - you could save $200/month by optimizing your subscription services.",
+      "Your productivity peaks on Tuesdays. Consider scheduling important meetings then.",
+      "I notice you're 23% more efficient when you take breaks every 90 minutes.",
+      "Your financial health score is excellent! Consider increasing your investment allocation.",
+      "I can automate your weekly planning - would you like me to set that up?",
+      "Your stress levels correlate with meeting density. I can help optimize your calendar.",
+      "Based on your goals, you're on track to exceed your targets by 15% this quarter."
+    ];
+
+    // SDK hooks (optional if SDK not present)
+    async function onConfigChange(newConfig) {
+      Object.assign(config, newConfig || {});
+      const appTitle = $('#app-title');
+      const welcomeMsg = $('#welcome-message');
+      const aiName = $('#ai-assistant-name');
+      const navCmd = $('#nav-command');
+      const navProj = $('#nav-projects');
+      const navFin = $('#nav-finance');
+      const navAna = $('#nav-analytics');
+      const projTitle = $('#projects-title');
+      const finTitle = $('#finance-title');
+      const anaTitle = $('#analytics-title');
+
+      if (appTitle) appTitle.textContent = config.app_title;
+      if (welcomeMsg) welcomeMsg.textContent = config.welcome_message;
+      if (aiName) aiName.textContent = config.ai_assistant_name;
+      if (navCmd) navCmd.textContent = config.workspace_title;
+      if (navProj) navProj.textContent = config.projects_title;
+      if (navFin) navFin.textContent = config.finance_title;
+      if (navAna) navAna.textContent = config.analytics_title;
+      if (projTitle) projTitle.textContent = config.projects_title;
+      if (finTitle) finTitle.textContent = config.finance_title;
+      if (anaTitle) anaTitle.textContent = config.analytics_title;
+
+      document.body.style.background = `linear-gradient(135deg, ${config.background_color} 0%, var(--bg-gradient-end) 100%)`;
+
+      $$('.neo-card, .metric-card, .bg-white').forEach((surface) => {
+        surface.style.background = config.surface_color;
+      });
+      $$('h1, h2, h3, .text-gray-800, .text-gray-700').forEach((el) => {
+        el.style.color = config.text_color;
+      });
+      $$('.bg-blue-600').forEach((btn) => {
+        btn.style.background = config.primary_action_color;
+      });
+    }
+
+    const dataHandler = {
+      onDataChanged(data) {
+        allData = Array.isArray(data) ? data : [];
+        currentRecordCount = allData.length;
+        updateDashboard();
+        renderProjects();
+        renderFinances();
+        renderCalendar();
+        updateAnalytics();
+      }
+    };
+
+    // Dashboard
+    function updateDashboard() {
+      const projects = allData.filter((d) => d.type === 'project');
+      const tasks = allData.filter((d) => d.type === 'task');
+      const finances = allData.filter((d) => d.type === 'finance');
+
+      const activeProjectsEl = $('#active-projects');
+      const completedProjectsEl = $('#completed-projects');
+      const overdueTasksEl = $('#overdue-tasks');
+      if (activeProjectsEl) activeProjectsEl.textContent = projects.filter((p) => p.status !== 'completed').length;
+      if (completedProjectsEl) completedProjectsEl.textContent = projects.filter((p) => p.status === 'completed').length;
+      if (overdueTasksEl) overdueTasksEl.textContent = tasks.filter((t) => t.dueDate && new Date(t.dueDate) < new Date() && t.status !== 'completed').length;
+
+      const income = finances.filter((f) => f.category === 'income').reduce((sum, f) => sum + (Number(f.amount) || 0), 0);
+      const expenses = finances.filter((f) => f.category === 'expense').reduce((sum, f) => sum + (Number(f.amount) || 0), 0);
+      const totalIncomeEl = $('#total-income');
+      const totalExpensesEl = $('#total-expenses');
+      const netWorthEl = $('#net-worth');
+      if (totalIncomeEl) totalIncomeEl.textContent = `$${income.toLocaleString()}`;
+      if (totalExpensesEl) totalExpensesEl.textContent = `$${expenses.toLocaleString()}`;
+      if (netWorthEl) netWorthEl.textContent = `$${(income - expenses).toLocaleString()}`;
+
+      updateCharts();
+      updateTodaysFocus();
+    }
+
+    function updateCharts() {
+      const ctx1 = $('#performanceChart');
+      if (ctx1) {
+        if (performanceChart) performanceChart.destroy();
+        performanceChart = new Chart(ctx1, {
+          type: 'line',
+          data: {
+            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+            datasets: [{ label: 'Productivity Score', data: [75, 89, 92, 78, 85, 67, 72], borderColor: '#667eea', backgroundColor: 'rgba(102, 126, 234, 0.1)', tension: 0.4, fill: true }]
+          },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, max: 100 } } }
+        });
+      }
+
+      const ctx2 = $('#forecastChart');
+      if (ctx2) {
+        if (forecastChart) forecastChart.destroy();
+        forecastChart = new Chart(ctx2, {
+          type: 'line',
+          data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
+            datasets: [
+              { label: 'Actual', data: [4200, 4800, 4600, 5200, 4900, 5400], borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.1)' },
+              { label: 'Predicted', data: [null, null, null, null, null, 5400, 5800, 6200], borderColor: '#667eea', backgroundColor: 'rgba(102, 126, 234, 0.1)', borderDash: [5, 5] }
+            ]
+          },
+          options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
+        });
+      }
+
+      const ctx3 = $('#timeChart');
+      if (ctx3) {
+        if (timeChart) timeChart.destroy();
+        timeChart = new Chart(ctx3, { type: 'doughnut', data: { labels: ['Deep Work', 'Meetings', 'Admin', 'Breaks', 'Learning'], datasets: [{ data: [35, 25, 15, 15, 10], backgroundColor: ['#667eea', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'] }] }, options: { responsive: true, maintainAspectRatio: false } });
+      }
+
+      const ctx4 = $('#wellnessChart');
+      if (ctx4) {
+        if (wellnessChart) wellnessChart.destroy();
+        wellnessChart = new Chart(ctx4, { type: 'radar', data: { labels: ['Sleep', 'Exercise', 'Nutrition', 'Stress', 'Focus', 'Energy'], datasets: [{ label: 'Current Week', data: [8, 7, 6, 8, 9, 7], borderColor: '#667eea', backgroundColor: 'rgba(102, 126, 234, 0.2)' }] }, options: { responsive: true, maintainAspectRatio: false, scales: { r: { beginAtZero: true, max: 10 } } } });
+      }
+    }
+
+    function updateTodaysFocus() {
+      const today = new Date().toISOString().split('T')[0];
+      const todayTasks = allData.filter((d) => (d.type === 'task' || d.type === 'project') && d.dueDate === today && d.status !== 'completed');
+      const container = $('#today-focus');
+      if (!container) return;
+
+      if (todayTasks.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-8 text-gray-500">
+            <i class="fas fa-check-circle text-4xl mb-4 text-green-500"></i>
+            <div class="text-lg font-semibold">All caught up!</div>
+            <div class="text-sm">No urgent tasks for today</div>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = todayTasks.map((task) => `
+        <div class="task-card priority-${task.priority || 'medium'}">
+          <div class="flex items-start justify-between">
+            <div class="flex-1">
+              <h4 class="font-semibold mb-1">${task.title}</h4>
+              <p class="text-sm text-gray-600 mb-2">${task.description || 'No description'}</p>
+              <div class="flex items-center gap-4 text-xs text-gray-500">
+                <span><i class="fas fa-flag"></i> ${task.priority || 'Medium'}</span>
+                <span><i class="fas fa-clock"></i> Due today</span>
+                ${task.estimatedHours ? `<span><i class="fas fa-hourglass-half"></i> ${task.estimatedHours}h</span>` : ''}
+              </div>
+            </div>
+            <button onclick="completeTask('${task.__backendId}')}" class="px-3 py-1 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 text-sm">Complete</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Projects
+    function renderProjects() {
+      const projects = allData.filter((d) => d.type === 'project');
+      ['backlog', 'progress', 'review', 'completed'].forEach((status) => {
+        const col = $(`#${status}-column`);
+        const count = $(`#${status}-count`);
+        if (col) col.innerHTML = '';
+        if (count) count.textContent = '0';
+      });
+      projects.forEach((project) => {
+        const column = getProjectColumn(project.status);
+        if (column) {
+          column.insertAdjacentHTML('beforeend', createProjectCard(project));
+          updateColumnCount(project.status);
+        }
+      });
+    }
+
+    function getProjectColumn(status) {
+      const map = { 'backlog': 'backlog-column', 'in-progress': 'progress-column', 'review': 'review-column', 'completed': 'completed-column' };
+      return document.getElementById(map[status] || 'backlog-column');
+    }
+
+    function createProjectCard(project) {
+      const dueDate = project.dueDate ? new Date(project.dueDate).toLocaleDateString() : 'No due date';
+      const isOverdue = project.dueDate && new Date(project.dueDate) < new Date() && project.status !== 'completed';
+      return `
+        <div class="task-card priority-${project.priority || 'medium'} ${isOverdue ? 'border-red-500' : ''}" draggable="true" data-id="${project.__backendId}">
+          <div class="flex items-start justify-between mb-2">
+            <h5 class="font-semibold text-sm">${project.title}</h5>
+            <div class="flex gap-1">
+              <button onclick="editProject('${project.__backendId}')" class="text-blue-600 hover:text-blue-800 text-xs"><i class="fas fa-edit"></i></button>
+              <button onclick="deleteItem('${project.__backendId}')" class="text-red-600 hover:text-red-800 text-xs"><i class="fas fa-trash"></i></button>
+            </div>
+          </div>
+          <p class="text-xs text-gray-600 mb-3">${project.description || 'No description'}</p>
+          <div class="flex items-center justify-between text-xs text-gray-500 mb-2">
+            <span><i class="fas fa-calendar"></i> ${dueDate}</span>
+            <span class="px-2 py-1 rounded-full text-xs ${getPriorityClass(project.priority)}">${project.priority || 'Medium'}</span>
+          </div>
+          ${project.progress ? `
+            <div class="mb-2">
+              <div class="flex justify-between text-xs mb-1"><span>Progress</span><span>${project.progress}%</span></div>
+              <div class="w-full bg-gray-200 rounded-full h-1"><div class="bg-blue-600 h-1 rounded-full" style="width: ${project.progress}%"></div></div>
+            </div>
+          ` : ''}
+          ${project.tags ? `
+            <div class="flex flex-wrap gap-1 mt-2">${String(project.tags).split(',').map((tag) => `<span class="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs">${tag.trim()}</span>`).join('')}</div>
+          ` : ''}
+        </div>
+      `;
+    }
+
+    function getPriorityClass(priority) {
+      const classes = { 'critical': 'bg-red-100 text-red-700', 'high': 'bg-orange-100 text-orange-700', 'medium': 'bg-yellow-100 text-yellow-700', 'low': 'bg-green-100 text-green-700' };
+      return classes[priority] || classes.medium;
+    }
+
+    function updateColumnCount(status) {
+      const map = { 'backlog': 'backlog-count', 'in-progress': 'progress-count', 'review': 'review-count', 'completed': 'completed-count' };
+      const el = document.getElementById(map[status]);
+      if (el) el.textContent = String((parseInt(el.textContent) || 0) + 1);
+    }
+
+    // Finance
+    function renderFinances() {
+      const finances = allData.filter((d) => d.type === 'finance');
+      renderBudgetCategories(finances);
+      renderTransactionList(finances);
+    }
+
+    function renderBudgetCategories(finances) {
+      const categories = {
+        'Housing': { budget: 2000, spent: 1800, color: '#667eea' },
+        'Food': { budget: 800, spent: 650, color: '#10b981' },
+        'Transportation': { budget: 400, spent: 320, color: '#f59e0b' },
+        'Entertainment': { budget: 300, spent: 180, color: '#ef4444' },
+        'Healthcare': { budget: 200, spent: 150, color: '#8b5cf6' }
+      };
+      const container = $('#budget-categories');
+      if (!container) return;
+      container.innerHTML = Object.entries(categories).map(([name, data]) => {
+        const percentage = (data.spent / data.budget) * 100;
+        const isOverBudget = percentage > 100;
+        return `
+          <div class="budget-category">
+            <div class="flex-1">
+              <div class="flex justify-between items-center mb-2">
+                <span class="font-semibold">${name}</span>
+                <span class="text-sm ${isOverBudget ? 'text-red-600' : 'text-gray-600'}">$${data.spent} / $${data.budget}</span>
+              </div>
+              <div class="budget-progress">
+                <div class="budget-fill ${isOverBudget ? 'over-budget' : ''}" style="width: ${Math.min(percentage, 100)}%; background-color: ${data.color};"></div>
+              </div>
+              <div class="text-xs text-gray-500 mt-1">${percentage.toFixed(1)}% used</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderTransactionList(finances) {
+      const container = $('#transaction-list');
+      if (!container) return;
+      const sorted = finances.slice().sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0)).slice(0, 10);
+      if (sorted.length === 0) {
+        container.innerHTML = '<div class="text-center py-8 text-gray-500">No transactions found</div>';
+        return;
+      }
+      container.innerHTML = sorted.map((transaction) => {
+        const isIncome = transaction.category === 'income';
+        const date = transaction.date ? new Date(transaction.date).toLocaleDateString() : '';
+        return `
+          <div class="flex items-center justify-between p-4 bg-white rounded-lg shadow-sm">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-lg ${isIncome ? 'bg-green-100' : 'bg-red-100'} flex items-center justify-center">
+                <i class="fas ${isIncome ? 'fa-arrow-up text-green-600' : 'fa-arrow-down text-red-600'}"></i>
+              </div>
+              <div>
+                <div class="font-semibold">${transaction.title || 'Untitled'}</div>
+                <div class="text-sm text-gray-500">${date} • ${transaction.category || ''}</div>
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="font-bold ${isIncome ? 'text-green-600' : 'text-red-600'}">${isIncome ? '+' : '-'}$${(Number(transaction.amount) || 0).toLocaleString()}</div>
+              <div class="text-xs text-gray-500">${transaction.notes || 'No notes'}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Calendar
+    function renderCalendar() {
+      const container = $('#calendar-grid');
+      if (!container) return;
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth();
+      container.innerHTML = '';
+
+      const dayHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      dayHeaders.forEach((day) => {
+        const dayHeader = document.createElement('div');
+        dayHeader.className = 'calendar-day font-semibold text-center bg-gray-100 text-gray-600';
+        dayHeader.textContent = day;
+        container.appendChild(dayHeader);
+      });
+
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const today = new Date();
+
+      for (let i = 0; i < firstDay; i++) {
+        const emptyDay = document.createElement('div');
+        emptyDay.className = 'calendar-day bg-gray-50';
+        container.appendChild(emptyDay);
+      }
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dayElement = document.createElement('div');
+        const dayDate = new Date(year, month, day);
+        const isToday = dayDate.toDateString() === today.toDateString();
+        dayElement.className = `calendar-day ${isToday ? 'today' : ''}`;
+        dayElement.innerHTML = `
+          <div class="font-semibold">${day}</div>
+          <div class="calendar-events" id="events-${year}-${month}-${day}"></div>
+        `;
+        container.appendChild(dayElement);
+      }
+      addEventsToCalendar();
+    }
+
+    function addEventsToCalendar() {
+      const events = allData.filter((d) => d.type === 'event' || d.type === 'task');
+      events.forEach((event) => {
+        const dateStr = event.date || event.dueDate;
+        if (!dateStr) return;
+        const eventDate = new Date(dateStr);
+        if (isNaN(eventDate)) return;
+        const year = eventDate.getFullYear();
+        const month = eventDate.getMonth();
+        const day = eventDate.getDate();
+        const eventContainer = document.getElementById(`events-${year}-${month}-${day}`);
+        if (eventContainer) {
+          const eventElement = document.createElement('div');
+          eventElement.className = 'calendar-event';
+          const title = String(event.title || '').trim();
+          eventElement.textContent = title ? (title.length > 15 ? title.substring(0, 15) + '...' : title) : 'Untitled';
+          eventElement.title = title || 'Untitled';
+          eventContainer.appendChild(eventElement);
+        }
+      });
+    }
+
+    // Analytics
+    function updateAnalytics() {
+      const ring = document.querySelectorAll('.progress-ring-circle')[1];
+      if (ring) {
+        const percentage = 87;
+        const offset = 251.2 - (percentage / 100) * 251.2;
+        ring.style.strokeDashoffset = offset;
+      }
+    }
+
+    // Navigation
+    function switchTab(tabName) {
+      $$('.tab-content').forEach((tab) => tab.classList.remove('active'));
+      $$('.nav-item').forEach((btn) => { btn.style.background = 'transparent'; });
+      const tab = document.getElementById(`${tabName}-tab`);
+      if (tab) tab.classList.add('active');
+      const activeBtn = document.querySelector(`[data-tab="${tabName}"]`);
+      if (activeBtn) activeBtn.style.background = 'rgba(255, 255, 255, 0.1)';
+      const titles = { command: config.workspace_title, projects: config.projects_title, finance: config.finance_title, analytics: config.analytics_title, calendar: 'Smart Calendar', automation: 'Automation Hub' };
+      const pageTitle = $('#page-title');
+      if (pageTitle) pageTitle.textContent = titles[tabName] || 'LifeOS Pro';
+      if (tabName === 'calendar') renderCalendar();
+      if (tabName === 'analytics') updateAnalytics();
+    }
+
+    // Chat
+    function toggleAIChat() { const panel = $('#ai-chat-panel'); if (panel) panel.classList.toggle('hidden'); }
+
+    function sendAIMessage(message) {
+      const messagesContainer = $('#chat-messages');
+      if (!messagesContainer) return;
+      const userMessage = document.createElement('div');
+      userMessage.className = 'chat-message user';
+      userMessage.innerHTML = `<div class="flex items-start gap-2 justify-end"><div><div class="font-semibold text-sm text-right">You</div><div class="text-sm">${message}</div></div><i class="fas fa-user mt-1"></i></div>`;
+      messagesContainer.appendChild(userMessage);
+      const typingIndicator = document.createElement('div');
+      typingIndicator.className = 'typing-indicator';
+      typingIndicator.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+      messagesContainer.appendChild(typingIndicator);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      setTimeout(() => {
+        if (typingIndicator.parentElement) typingIndicator.remove();
+        const aiMessage = document.createElement('div');
+        aiMessage.className = 'chat-message ai';
+        const randomResponse = aiResponses[Math.floor(Math.random() * aiResponses.length)];
+        aiMessage.innerHTML = `<div class="flex items-start gap-2"><i class="fas fa-robot text-purple-600 mt-1"></i><div><div class="font-semibold text-sm">ARIA</div><div class="text-sm">${randomResponse}</div></div></div>`;
+        messagesContainer.appendChild(aiMessage);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      }, 1200);
+    }
+
+    // Modal utils
+    function openModal(content) { const body = $('#modal-body'); const overlay = $('#modal-overlay'); if (!body || !overlay) return; body.innerHTML = content; overlay.classList.add('active'); }
+    function closeModal() { const overlay = $('#modal-overlay'); if (overlay) overlay.classList.remove('active'); }
+
+    function openQuickAdd(type = 'task') {
+      const content = `
+        <div class="p-6">
+          <h3 class="text-xl font-bold mb-4">Quick Add ${type.charAt(0).toUpperCase() + type.slice(1)}</h3>
+          <form id="quick-add-form" class="space-y-4">
+            <input type="text" id="quick-title" placeholder="Title..." class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+            <textarea id="quick-description" placeholder="Description..." rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus-border-transparent"></textarea>
+            <div class="grid grid-cols-2 gap-4">
+              <input type="date" id="quick-date" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+              <select id="quick-priority" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <option value="low">Low Priority</option>
+                <option value="medium" selected>Medium Priority</option>
+                <option value="high">High Priority</option>
+                <option value="critical">Critical</option>
+              </select>
+            </div>
+            <div class="flex gap-2">
+              <button type="submit" class="flex-1 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Add ${type.charAt(0).toUpperCase() + type.slice(1)}</button>
+              <button type="button" id="quick-cancel" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400">Cancel</button>
+            </div>
+          </form>
+        </div>`;
+      openModal(content);
+      const dateEl = $('#quick-date'); if (dateEl) dateEl.value = new Date().toISOString().split('T')[0];
+      const form = $('#quick-add-form');
+      const cancel = $('#quick-cancel'); if (cancel) cancel.addEventListener('click', closeModal);
+      if (form) form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (currentRecordCount >= 999) { showNotification('Maximum limit of 999 items reached. Please delete some items first.', 'error'); return; }
+        const title = $('#quick-title')?.value?.trim();
+        const description = $('#quick-description')?.value?.trim() || '';
+        const date = $('#quick-date')?.value || '';
+        const priority = $('#quick-priority')?.value || 'medium';
+        if (!title || !date) return;
+        const payload = {
+          id: Date.now().toString(), type, title, description, date, dueDate: date, priority,
+          status: 'backlog', completed: false, progress: 0, category: '', amount: 0, tags: '', location: '', assignee: '',
+          duration: 0, recurring: '', parentId: '', dependencies: '', estimatedHours: 0, actualHours: 0, budgetAllocated: 0, budgetSpent: 0,
+          riskLevel: 'low', aiScore: Math.floor(Math.random() * 100), automationRules: '', collaborators: '', attachments: '', customFields: '',
+          workflowStage: 'planning', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), startDate: '', endDate: '', time: ''
+        };
+        if (window.dataSdk && typeof window.dataSdk.create === 'function') {
+          const result = await window.dataSdk.create(payload);
+          if (result?.isOk) { closeModal(); showNotification(`${type.charAt(0).toUpperCase() + type.slice(1)} added successfully!`); }
+          else { showNotification(`Failed to add ${type}`, 'error'); }
+        } else {
+          // Fallback: update local state so UI still works without SDK
+          allData.push({ ...payload, __backendId: payload.id });
+          currentRecordCount = allData.length;
+          updateDashboard();
+          closeModal();
+          showNotification(`${type.charAt(0).toUpperCase() + type.slice(1)} added locally (SDK offline).`);
+        }
+      });
+    }
+
+    // Notifications
+    function showNotification(message, type = 'success') {
+      const notification = document.createElement('div');
+      notification.className = 'notification-toast';
+      notification.innerHTML = `
+        <div class="flex items-start gap-3">
+          <i class="fas ${type === 'success' ? 'fa-check-circle text-green-600' : 'fa-exclamation-circle text-red-600'} mt-1"></i>
+          <div class="flex-1">
+            <div class="font-semibold">${type === 'success' ? 'Success' : 'Error'}</div>
+            <div class="text-sm text-gray-600">${message}</div>
+          </div>
+          <button class="text-gray-400 hover:text-gray-600" aria-label="Close"> <i class="fas fa-times"></i> </button>
+        </div>`;
+      const closeBtn = notification.querySelector('button');
+      if (closeBtn) closeBtn.addEventListener('click', () => notification.remove());
+      document.body.appendChild(notification);
+      setTimeout(() => { if (notification.parentElement) notification.remove(); }, 5000);
+    }
+
+    // Data ops
+    async function deleteItem(id) {
+      const item = allData.find((d) => d.__backendId === id || d.id === id);
+      if (!item) return;
+      if (window.dataSdk?.delete) {
+        const result = await window.dataSdk.delete(item);
+        if (result?.isOk) { showNotification('Item deleted successfully'); }
+        else { showNotification('Failed to delete item', 'error'); }
+      } else {
+        // local fallback
+        allData = allData.filter((d) => (d.__backendId || d.id) !== (item.__backendId || item.id));
+        currentRecordCount = allData.length;
+        updateDashboard();
+        showNotification('Item deleted locally (SDK offline)');
+      }
+    }
+
+    async function completeTask(id) {
+      const task = allData.find((d) => d.__backendId === id || d.id === id);
+      if (!task) return;
+      task.status = 'completed';
+      task.completed = true;
+      task.progress = 100;
+      task.updatedAt = new Date().toISOString();
+      if (window.dataSdk?.update) {
+        const result = await window.dataSdk.update(task);
+        if (result?.isOk) { showNotification('Task completed!'); }
+        else { showNotification('Failed to complete task', 'error'); }
+      } else {
+        updateDashboard();
+        showNotification('Task marked complete locally (SDK offline)');
+      }
+    }
+
+    // Event listeners
+    document.addEventListener('DOMContentLoaded', () => {
+      const chatForm = $('#chat-form');
+      const quickEventForm = $('#quick-event-form');
+      const modalOverlay = $('#modal-overlay');
+
+      if (chatForm) chatForm.addEventListener('submit', (e) => { e.preventDefault(); const input = $('#chat-input'); const message = input?.value?.trim(); if (message) { sendAIMessage(message); input.value = ''; } });
+
+      if (quickEventForm) quickEventForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (currentRecordCount >= 999) { showNotification('Maximum limit of 999 items reached. Please delete some items first.', 'error'); return; }
+        const title = $('#event-title')?.value?.trim();
+        const datetime = $('#event-datetime')?.value;
+        if (!title || !datetime) return;
+        const date = new Date(datetime);
+        const payload = {
+          id: Date.now().toString(), type: 'event', title, description: '', date: date.toISOString().split('T')[0], time: date.toTimeString().slice(0, 5), dueDate: date.toISOString().split('T')[0], priority: 'medium', status: 'scheduled', completed: false, progress: 0, category: 'event', amount: 0, tags: '', location: '', assignee: '', duration: 60, recurring: '', parentId: '', dependencies: '', estimatedHours: 1, actualHours: 0, budgetAllocated: 0, budgetSpent: 0, riskLevel: 'low', aiScore: Math.floor(Math.random() * 100), automationRules: '', collaborators: '', attachments: '', customFields: '', workflowStage: 'scheduled', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), startDate: date.toISOString().split('T')[0], endDate: date.toISOString().split('T')[0]
+        };
+        if (window.dataSdk?.create) {
+          const result = await window.dataSdk.create(payload);
+          if (result?.isOk) { quickEventForm.reset(); showNotification('Event added successfully!'); }
+          else { showNotification('Failed to add event', 'error'); }
+        } else {
+          allData.push({ ...payload, __backendId: payload.id });
+          currentRecordCount = allData.length;
+          renderCalendar();
+          showNotification('Event added locally (SDK offline).');
+          quickEventForm.reset();
+        }
+      });
+
+      if (modalOverlay) modalOverlay.addEventListener('click', (e) => { if (e.target === e.currentTarget) closeModal(); });
+
+      init();
+    });
+
+    // Init
+    function init() {
+      const dateEl = $('#current-date');
+      if (dateEl) dateEl.textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+      if (window.elementSdk?.init) {
+        window.elementSdk.init({
+          defaultConfig,
+          onConfigChange,
+          mapToCapabilities: (cfg) => ({ recolorables: [
+            { get: () => cfg.background_color || defaultConfig.background_color, set: (v) => { cfg.background_color = v; onConfigChange(cfg); } },
+            { get: () => cfg.surface_color || defaultConfig.surface_color, set: (v) => { cfg.surface_color = v; onConfigChange(cfg); } },
+            { get: () => cfg.text_color || defaultConfig.text_color, set: (v) => { cfg.text_color = v; onConfigChange(cfg); } },
+            { get: () => cfg.primary_action_color || defaultConfig.primary_action_color, set: (v) => { cfg.primary_action_color = v; onConfigChange(cfg); } },
+            { get: () => cfg.secondary_action_color || defaultConfig.secondary_action_color, set: (v) => { cfg.secondary_action_color = v; onConfigChange(cfg); } }
+          ], borderables: [], fontEditable: undefined, fontSizeable: undefined }),
+          mapToEditPanelValues: (cfg) => new Map([
+            ['app_title', cfg.app_title || defaultConfig.app_title],
+            ['welcome_message', cfg.welcome_message || defaultConfig.welcome_message],
+            ['workspace_title', cfg.workspace_title || defaultConfig.workspace_title],
+            ['projects_title', cfg.projects_title || defaultConfig.projects_title],
+            ['finance_title', cfg.finance_title || defaultConfig.finance_title],
+            ['analytics_title', cfg.analytics_title || defaultConfig.analytics_title],
+            ['ai_assistant_name', cfg.ai_assistant_name || defaultConfig.ai_assistant_name]
+          ])
+        });
+      }
+
+      if (window.dataSdk?.init) {
+        window.dataSdk.init(dataHandler);
+      } else {
+        // Optional: seed demo data when SDK is absent for a smoother demo
+        allData = [];
+        currentRecordCount = 0;
+        updateDashboard();
+        renderCalendar();
+        updateAnalytics();
+      }
+
+      // Initial charts after layout paints
+      setTimeout(updateCharts, 300);
+    }
+
+    // Stubs to avoid console errors if not implemented elsewhere
+    function toggleNotifications() { showNotification('No new notifications'); }
+    function openSettings() { showNotification('Settings panel not implemented'); }
+    function openProjectModal() { openQuickAdd('project'); }
+    function openTransactionModal() { openQuickAdd('finance'); }
+    function editProject() { showNotification('Edit project not implemented'); }
+    function changeCalendarView(view) { currentCalendarView = view; renderCalendar(); }
+  </script>
+ </body>
+</html>
